@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Performance Lojas — VX Case</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f2f5;
+    --surface: #ffffff;
+    --surface2: #f7f8fa;
+    --border: #e4e7ec;
+    --accent: #4f7aff;
+    --accent-soft: #eef1ff;
+    --red: #e54d4d;
+    --red-soft: #fef2f2;
+    --green: #2eaa6e;
+    --green-soft: #f0faf5;
+    --yellow: #f5a623;
+    --yellow-soft: #fff8ee;
+    --text: #1a1d23;
+    --text2: #4b5263;
+    --muted: #9aa0b0;
+    --shadow: 0 1px 4px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.04);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  [data-theme="dark"] {
+    --bg: #12141a;
+    --surface: #1c1f28;
+    --surface2: #232733;
+    --border: #2e3240;
+    --accent: #6b8fff;
+    --accent-soft: #1e2540;
+    --red: #e05555;
+    --red-soft: #2a1a1a;
+    --green: #3dbf7a;
+    --green-soft: #132a1e;
+    --yellow: #f5a623;
+    --yellow-soft: #2a2010;
+    --text: #e8eaf0;
+    --text2: #9aa0b0;
+    --muted: #5a6070;
+    --shadow: 0 1px 4px rgba(0,0,0,.3);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.2);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; transition: background .25s, color .25s; font-size: 14px; }
+
+  /* LOGIN */
+  .login-wrap {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .login-box {
+    background: var(--surface); border-radius: 20px; padding: 48px 40px;
+    width: 100%; max-width: 400px; box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .login-logo { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+  .login-logo span { color: var(--accent); }
+  .login-sub { color: var(--muted); font-size: 13px; margin-bottom: 36px; }
+  .login-tabs { display: flex; background: var(--surface2); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 28px; gap: 4px; }
+  .login-tab {
+    flex: 1; padding: 9px; text-align: center; border-radius: 6px; border: none;
+    background: none; color: var(--text2); font-family: inherit; font-size: 13px;
+    font-weight: 600; cursor: pointer; transition: all .2s;
+  }
+  .login-tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
+  .login-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); margin-bottom: 6px; display: block; }
+  .login-input {
+    width: 100%; padding: 12px 14px; background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); border-radius: var(--radius-sm); font-family: inherit; font-size: 14px;
+    outline: none; transition: border-color .2s; margin-bottom: 20px;
+  }
+  .login-input:focus { border-color: var(--accent); }
+  .login-btn {
+    width: 100%; padding: 13px; background: var(--accent); color: #fff; border: none;
+    border-radius: var(--radius-sm); font-family: inherit; font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: opacity .2s;
+  }
+  .login-btn:hover { opacity: .88; }
+  .login-err { color: var(--red); font-size: 12px; margin-top: -12px; margin-bottom: 14px; display: none; }
+  .login-err.show { display: block; }
+
+  /* LAYOUT */
+  header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 0 28px; display: flex; align-items: center; justify-content: space-between;
+    height: 58px; position: sticky; top: 0; z-index: 100;
+    box-shadow: var(--shadow-sm);
+  }
+  .logo { font-size: 16px; font-weight: 800; }
+  .logo span { color: var(--accent); }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .user-badge {
+    background: var(--accent-soft); color: var(--accent); padding: 5px 12px;
+    border-radius: 20px; font-size: 12px; font-weight: 600;
+  }
+  .user-badge.admin { background: var(--yellow-soft); color: var(--yellow); }
+  .btn-icon {
+    background: none; border: 1px solid var(--border); color: var(--text2);
+    padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;
+    cursor: pointer; font-family: inherit; transition: all .2s;
+  }
+  .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* TABS NAV */
+  .nav-tabs { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 28px; display: flex; gap: 2px; }
+  .nav-tab {
+    padding: 14px 20px; border: none; background: none; color: var(--muted);
+    font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    text-transform: uppercase; letter-spacing: .4px; transition: all .2s;
+  }
+  .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .nav-tab:hover:not(.active) { color: var(--text); }
+
+  /* MAIN */
+  main { padding: 28px; max-width: 1100px; margin: 0 auto; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* CARDS */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow-sm); }
+  .card-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: 18px; }
+
+  /* FORM */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); }
+  select, input, textarea {
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    padding: 11px 13px; border-radius: var(--radius-sm); font-family: inherit; font-size: 14px;
+    outline: none; transition: border-color .2s; -webkit-appearance: none; appearance: none;
+  }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath fill='none' stroke='%239aa0b0' stroke-width='1.5' d='M1 1l5 5 5-5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 34px; }
+  select:focus, input:focus, textarea:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 72px; }
+
+  .tipo-group { display: flex; gap: 10px; }
+  .tipo-btn {
+    flex: 1; padding: 12px; border-radius: var(--radius-sm); border: 1.5px solid var(--border);
+    background: var(--surface2); color: var(--muted); font-family: inherit;
+    font-size: 13px; font-weight: 700; cursor: pointer; transition: all .2s;
+  }
+  .tipo-btn.erro.active { border-color: var(--red); color: var(--red); background: var(--red-soft); }
+  .tipo-btn.acerto.active { border-color: var(--green); color: var(--green); background: var(--green-soft); }
+
+  .btn-primary {
+    margin-top: 20px; width: 100%; padding: 14px; background: var(--accent); color: #fff;
+    border: none; border-radius: var(--radius-sm); font-family: inherit;
+    font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity .2s;
+  }
+  .btn-primary:hover { opacity: .88; }
+  .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
+
+  /* FILTER BAR */
+  .filter-bar { display: flex; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; align-items: flex-end; }
+  .filter-bar .form-group { flex: 1; min-width: 140px; }
+  .btn-filter {
+    padding: 11px 20px; background: var(--accent); color: #fff; border: none;
+    border-radius: var(--radius-sm); font-family: inherit; font-size: 13px; font-weight: 700;
+    cursor: pointer; white-space: nowrap; align-self: flex-end; transition: opacity .2s;
+  }
+  .btn-filter:hover { opacity: .88; }
+
+  /* PLACAR */
+  .placar-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 22px; }
+  .placar-card { border-radius: var(--radius); padding: 20px; text-align: center; border: 1px solid var(--border); }
+  .placar-card.total { background: var(--accent-soft); }
+  .placar-card.acertos { background: var(--green-soft); }
+  .placar-card.erros { background: var(--red-soft); }
+  .placar-card .num { font-size: 38px; font-weight: 800; line-height: 1; }
+  .placar-card.total .num { color: var(--accent); }
+  .placar-card.acertos .num { color: var(--green); }
+  .placar-card.erros .num { color: var(--red); }
+  .placar-card .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); margin-top: 4px; font-weight: 600; }
+
+  /* EVENTOS */
+  .eventos-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+  .eventos-header h3 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
+  .copy-btns { display: flex; gap: 8px; }
+  .btn-copy {
+    padding: 7px 14px; background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text2); border-radius: 6px; font-family: inherit; font-size: 11px;
+    font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: .4px; transition: all .2s;
+  }
+  .btn-copy:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-copy.full { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+  .evento-item {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 12px 14px; margin-bottom: 7px; display: flex; gap: 10px; align-items: flex-start;
+  }
+  .evento-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; padding: 3px 8px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; margin-top: 2px; }
+  .evento-badge.erro { background: var(--red-soft); color: var(--red); }
+  .evento-badge.acerto { background: var(--green-soft); color: var(--green); }
+  .evento-info { flex: 1; }
+  .evento-motivo { font-size: 13px; font-weight: 500; }
+  .evento-meta { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .evento-obs { font-size: 12px; color: var(--text2); margin-top: 5px; font-style: italic; border-left: 2px solid var(--border); padding-left: 8px; }
+  .btn-del {
+    background: none; border: none; color: var(--muted); cursor: pointer;
+    font-size: 16px; padding: 2px 6px; border-radius: 4px; transition: all .2s; flex-shrink: 0;
+  }
+  .btn-del:hover { background: var(--red-soft); color: var(--red); }
+
+  /* CATEGORIA */
+  .categoria-section { margin-top: 22px; }
+  .categoria-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); margin-bottom: 8px; }
+  .categoria-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--surface2); border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 5px; }
+  .cat-name { font-size: 13px; font-weight: 500; }
+  .cat-counts { display: flex; gap: 14px; }
+  .cat-counts span { font-size: 12px; font-weight: 700; }
+  .c-acerto { color: var(--green); }
+  .c-erro { color: var(--red); }
+
+  /* DASHBOARD */
+  .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .dash-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow-sm); }
+  .dash-card-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .dash-badge { padding: 2px 8px; border-radius: 4px; font-size: 10px; }
+  .dash-badge.erro { background: var(--red-soft); color: var(--red); }
+  .dash-badge.acerto { background: var(--green-soft); color: var(--green); }
+
+  .rank-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .rank-item:last-child { border-bottom: none; }
+  .rank-num { font-size: 11px; font-weight: 800; color: var(--muted); width: 18px; text-align: center; flex-shrink: 0; }
+  .rank-name { font-size: 12px; font-weight: 500; flex: 1; line-height: 1.3; }
+  .rank-bar-wrap { width: 80px; height: 6px; background: var(--border); border-radius: 3px; flex-shrink: 0; }
+  .rank-bar { height: 6px; border-radius: 3px; }
+  .rank-bar.erro { background: var(--red); }
+  .rank-bar.acerto { background: var(--green); }
+  .rank-count { font-size: 12px; font-weight: 800; width: 24px; text-align: right; flex-shrink: 0; }
+  .rank-count.erro { color: var(--red); }
+  .rank-count.acerto { color: var(--green); }
+
+  .dash-filter { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; align-items: flex-end; }
+  .dash-filter .form-group { flex: 1; min-width: 130px; }
+  .btn-dash-filter { padding: 10px 18px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer; align-self: flex-end; transition: opacity .2s; }
+  .btn-dash-filter:hover { opacity: .88; }
+
+  /* UTILS */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+  .empty-state { text-align: center; padding: 50px 20px; color: var(--muted); font-size: 13px; }
+  .loading { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; }
+
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--border); padding: 12px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; transform: translateY(80px); opacity: 0; transition: all .3s; z-index: 999; box-shadow: var(--shadow); }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-color: var(--green); color: var(--green); }
+  .toast.error { border-color: var(--red); color: var(--red); }
+
+  @media (max-width: 700px) {
+    main { padding: 16px; }
+    .form-grid, .dash-grid, .placar-row { grid-template-columns: 1fr; }
+    header { padding: 0 16px; }
+    .nav-tabs { padding: 0 16px; overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen" class="login-wrap">
+  <div class="login-box">
+    <div class="login-logo">VX <span>Performance</span></div>
+    <div class="login-sub">Sistema de acompanhamento de lojas</div>
+    <div class="login-tabs">
+      <button class="login-tab active" onclick="setLoginTipo('analista')">Analista</button>
+      <button class="login-tab" onclick="setLoginTipo('admin')">Administrador</button>
+    </div>
+    <label class="login-label" id="login-label-user" style="display:none">Nome</label>
+    <select class="login-input" id="login-nome" style="display:none">
+      <option value="">Selecione seu nome...</option>
+      <option>Amanda Menezes</option>
+      <option>Suiane Lopes</option>
+      <option>Raquel França</option>
+    </select>
+    <label class="login-label">Senha</label>
+    <input class="login-input" type="password" id="login-senha" placeholder="Digite sua senha..." onkeydown="if(event.key==='Enter')fazerLogin()">
+    <div class="login-err" id="login-err">Senha incorreta. Tente novamente.</div>
+    <button class="login-btn" onclick="fazerLogin()">Entrar</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-screen" style="display:none">
+  <header>
+    <div class="logo">VX <span>Performance</span></div>
+    <div class="header-right">
+      <span class="user-badge" id="user-badge">Analista</span>
+      <button class="btn-icon" onclick="toggleTheme()" id="theme-btn">☀️</button>
+      <button class="btn-icon" onclick="sair()">Sair</button>
+    </div>
+  </header>
+
+  <div class="nav-tabs" id="nav-tabs">
+    <button class="nav-tab active" onclick="switchTab('registrar')">Registrar</button>
+    <button class="nav-tab" onclick="switchTab('relatorio')">Relatório</button>
+    <button class="nav-tab" id="tab-dash" style="display:none" onclick="switchTab('dashboard')">Dashboard</button>
+  </div>
+
+  <main>
+    <!-- REGISTRAR -->
+    <div id="page-registrar" class="page active">
+      <div class="card">
+        <div class="card-title">Novo Registro</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Analista</label>
+            <select id="reg-analista">
+              <option value="">Selecione...</option>
+              <option>Amanda Menezes</option>
+              <option>Suiane Lopes</option>
+              <option>Raquel França</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Loja</label>
+            <select id="reg-loja"><option value="">Selecione...</option></select>
+          </div>
+          <div class="form-group full">
+            <label>Tipo</label>
+            <div class="tipo-group">
+              <button class="tipo-btn erro" onclick="selectTipo('erro')">❌ Erro</button>
+              <button class="tipo-btn acerto" onclick="selectTipo('acerto')">✅ Acerto</button>
+            </div>
+          </div>
+          <div class="form-group full">
+            <label>Motivo</label>
+            <select id="reg-motivo"><option value="">Selecione o tipo primeiro...</option></select>
+          </div>
+          <div class="form-group full">
+            <label>Observação (opcional)</label>
+            <textarea id="reg-obs" placeholder="Detalhes adicionais..."></textarea>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="salvarRegistro()">Salvar Registro</button>
+      </div>
+    </div>
+
+    <!-- RELATÓRIO -->
+    <div id="page-relatorio" class="page">
+      <div class="card" style="margin-bottom:18px">
+        <div class="filter-bar" style="margin-bottom:0">
+          <div class="form-group">
+            <label>Mês</label>
+            <select id="fil-mes"></select>
+          </div>
+          <div class="form-group">
+            <label>Analista</label>
+            <select id="fil-analista" onchange="onChangeAnalista()">
+              <option value="">Todos</option>
+              <option>Amanda Menezes</option>
+              <option>Suiane Lopes</option>
+              <option>Raquel França</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Loja</label>
+            <select id="fil-loja"><option value="">Todas as lojas</option></select>
+          </div>
+          <button class="btn-filter" onclick="carregarRelatorio()">Filtrar</button>
+        </div>
+      </div>
+      <div id="rel-content">
+        <div class="empty-state">Selecione os filtros e clique em Filtrar</div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD (admin only) -->
+    <div id="page-dashboard" class="page">
+      <div class="card" style="margin-bottom:18px">
+        <div class="dash-filter">
+          <div class="form-group">
+            <label>Mês</label>
+            <select id="dash-mes"></select>
+          </div>
+          <button class="btn-dash-filter" onclick="carregarDashboard()">Atualizar</button>
+        </div>
+      </div>
+      <div id="dash-content">
+        <div class="empty-state">Selecione o mês e clique em Atualizar</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://fevhyllvfhvzzfhwyjuk.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZldmh5bGx2Zmh2enpmaHd5anVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NzEyMTcsImV4cCI6MjA5NDQ0NzIxN30.GJRgEKW1bVWX1957_bKCTO6aVmR_rXWRCmo9-ZJDPiE';
+
+const LOJAS = ["AEROPORTO LOJA 153","ARACAJU JARDINS QUIOSQUE 25","ARACAJU JARDINS QUIOSQUE 50","ARACAJU RIOMAR LOJA 143A","ARACAJU RIOMAR QUIOSQUE 202","BELA VISTA LOJA 55","BELA VISTA QUIOSQUE 9.1","BELÉM BOULEVARD FASHION LOJA 262","BELÉM BOULEVARD LOJA 459","BELÉM PARQUE QUIOSQUE 07","BELÉM BOULEVARD QUIOSQUE 103","BH BOULEVARD LOJA 1049","BH DEL REY LOJA SDR 3025","BH DEL REY QUIOSQUE SDRT 1690","BH DIAMONDMALL LOJA BG57","BH DIAMONDMALL QUIOSQUE GD04","BH SAVASSI LOJA 103","BH SHOPPING FASHION LOJA 26A","BH SHOPPING LOJA 08","BH SHOPPING QUIOSQUE MA01","BOTAFOGO LOJA 126","BRASÍLIA LOJA 293","CAMPINAS LOJA 1229","CAMPINAS QUIOSQUE F786","DREAM TEAM","FEIRA DE SANTANA LOJA 213","FEIRA DE SANTANA QUIOSQUE B23","FORTALEZA IGUATEMI LOJA 617","FORTALEZA IGUATEMI Q 160","FORTALEZA RIOMAR LOJA 1173","FORTALEZA RIOMAR LOJA 2062","GOIÂNIA FLAMBOYANT LOJA P438","GOIÂNIA FLAMBOYANT QUIOSQUE P04","GOIÂNIA FLAMBOYANT QUIOSQUE P13","GOIÂNIA FLAMBOYANT QUIOSQUE S10","GOIÂNIA SHOPPING LOJA 217","GOIÂNIA SHOPPING QUIOSQUE T18B","LAURO LOJA 1093","LAURO QUIOSQUE 107","LOJA VIRTUAL","MACEIÓ PARQUE LOJA 1042","MACEIÓ PARQUE LOJA 3080","MACEIÓ PARQUE QUIOSQUE 04","MACEIÓ SHOPPING LOJA 308A","MANAUS AMAZONAS QUIOSQUE A39","MANAUS MANAUARA LOJA 90","MANAUS MANAUARA QUIOSQUE 758","MINIATURAS","NATAL SHOPPING LOJA 378","NATAL MIDWAY LOJA 254","NITERÓI LOJA SPN00313","NITERÓI QUIOSQUE 108","NORTE LOJA 1059","PARALELA FASHION LOJA F214","PARALELA QUIOSQUE 108","RECIFE RIOMAR LOJA 1061","RECIFE RIOMAR FASHION LOJA 1152","RECIFE RIOMAR QUIOSQUE 211","RECIFE RIOMAR QUIOSQUE 101","RIO DE JANEIRO DESIGN QUIOSQUE 3F","RIO DE JANEIRO FASHION LOJA 115","RIO DE JANEIRO LOJA 106","RIO DE JANEIRO LOJA 248A","RIO DE JANEIRO QUIOSQUE P12","RIO DE JANEIRO QUIOSQUE P39","RIO DE JANEIRO SUL LOJA 401","SALVADOR FASHION 2074A","SALVADOR GALAXY QUIOSQUE 122","SALVADOR IPHONE QUIOSQUE 107","SALVADOR MEGA STORE LOJA 1147","SALVADOR MINI MEGA LOJA 4003","SALVADOR QUIOSQUE BE 112","SERRA LOJA 301E","SHOP BARRA LOJA 342","SHOP BARRA LOJA 437","SHOP BARRA QUIOSQUE 112 LESTE","SHOP BARRA QUIOSQUE 120 SUL","SHOPPING DA BAHIA LOJA 36","SHOPPING DA BAHIA LOJA 24","SHOPPING DA BAHIA FASHION LOJA 32","SHOPPING DA BAHIA QUIOSQUE 002","SHOPPING RECIFE BE QUIOSQUE P4.1","SHOPPING RECIFE LOJA BV164","SHOPPING RECIFE LOJA BV072","SHOPPING RECIFE LOJA PC145","SHOPPING RECIFE QUIOSQUE P50","SÃO PAULO TAMBORÉ STB0027","TIJUCA QUIOSQUE 105","VILA VELHA LOJA 1031","VILA VELHA LOJA 104E","VILA VELHA LOJA 1071","VILA VELHA QUIOSQUE 206","VILA VELHA QUIOSQUE 121","VILA VELHA QUIOSQUE 2021","VITORIA DA CONQUISTA LOJA 1017","VITÓRIA LOJA 116","VITÓRIA LOJA 410/411","VITÓRIA QUIOSQUE S118","VITÓRIA QUIOSQUE S134"];
+
+const MOTIVOS = {
+  erro: [
+    {id:'E1',cat:'Separação',txt:'Não separou item solicitado para venda lançada'},
+    {id:'E2',cat:'Reserva',txt:'Não reservou venda em sistema após solicitação'},
+    {id:'E3',cat:'Remanejamento',txt:'Resistiu/ignorou solicitação de remanejamento'},
+    {id:'E4',cat:'Envio',txt:'Não respondeu solicitação de envio — precisou cobrar'},
+    {id:'E5',cat:'Foto/Confirmação',txt:'Não enviou fotos dos volumes e notas no grupo'},
+    {id:'E6',cat:'Localização',txt:'Não localizou item no próprio estoque por desorganização'},
+    {id:'E7',cat:'Fardamento',txt:'Passou do prazo para realizar movimento de fardamento'},
+    {id:'E8',cat:'Consulta Prévia',txt:'Solicitou item em outro shopping sem consultar estoque primeiro'},
+  ],
+  acerto: [
+    {id:'A1',cat:'Separação',txt:'Separou item corretamente e no prazo após solicitação'},
+    {id:'A2',cat:'Reserva',txt:'Reservou venda em sistema sem necessidade de cobrança'},
+    {id:'A3',cat:'Remanejamento',txt:'Executou remanejamento sem resistência'},
+    {id:'A4',cat:'Envio',txt:'Respondeu e executou envio sem precisar cobrar'},
+    {id:'A5',cat:'Foto/Confirmação',txt:'Enviou fotos e notas espontaneamente no grupo'},
+    {id:'A6',cat:'Localização',txt:'Localizou e resolveu internamente sem impactar operação'},
+    {id:'A7',cat:'Fardamento',txt:'Realizou movimento de fardamento dentro do prazo'},
+    {id:'A8',cat:'Consulta Prévia',txt:'Consultou estoque antes de solicitar item em outro shopping'},
+  ]
+};
+
+const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+let tipoSelecionado = '';
+let sb = null;
+let sessao = null; // { nome, isAdmin }
+
+// Carrega Supabase
+const s = document.createElement('script');
+s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+s.onload = () => { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); };
+document.head.appendChild(s);
+
+/* ===== LOGIN ===== */
+let loginTipo = 'analista';
+function setLoginTipo(tipo) {
+  loginTipo = tipo;
+  document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  const showNome = tipo === 'analista';
+  document.getElementById('login-label-user').style.display = showNome ? 'block' : 'none';
+  document.getElementById('login-nome').style.display = showNome ? 'block' : 'none';
+  document.getElementById('login-err').classList.remove('show');
+}
+
+function fazerLogin() {
+  const senha = document.getElementById('login-senha').value;
+  const errEl = document.getElementById('login-err');
+  errEl.classList.remove('show');
+
+  if (loginTipo === 'analista') {
+    const nome = document.getElementById('login-nome').value;
+    if (!nome) { errEl.textContent = 'Selecione seu nome.'; errEl.classList.add('show'); return; }
+    if (senha !== 'ADMESTOQUE') { errEl.textContent = 'Senha incorreta.'; errEl.classList.add('show'); return; }
+    sessao = { nome, isAdmin: false };
+  } else {
+    if (senha !== 'Benicio12') { errEl.textContent = 'Senha incorreta.'; errEl.classList.add('show'); return; }
+    sessao = { nome: 'Rodrigo', isAdmin: true };
+  }
+
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'block';
+  iniciarApp();
+}
+
+function sair() {
+  sessao = null;
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app-screen').style.display = 'none';
+  document.getElementById('login-senha').value = '';
+  document.getElementById('login-nome').value = '';
+}
+
+/* ===== APP INIT ===== */
+function iniciarApp() {
+  const badge = document.getElementById('user-badge');
+  badge.textContent = sessao.isAdmin ? '👑 ' + sessao.nome : sessao.nome;
+  badge.className = 'user-badge' + (sessao.isAdmin ? ' admin' : '');
+
+  // Dashboard só pra admin
+  document.getElementById('tab-dash').style.display = sessao.isAdmin ? 'flex' : 'none';
+
+  // Pré-seleciona analista no form de registro se for analista
+  if (!sessao.isAdmin) {
+    document.getElementById('reg-analista').value = sessao.nome;
+  }
+
+  // Lojas
+  const selReg = document.getElementById('reg-loja');
+  if (selReg.options.length <= 1) {
+    LOJAS.forEach(l => { const o = new Option(l,l); selReg.appendChild(o); });
+  }
+
+  // Meses
+  ['fil-mes','dash-mes'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (sel.options.length === 0) {
+      const now = new Date();
+      for (let i = 0; i < 12; i++) {
+        const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+        const val = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+        sel.appendChild(new Option(`${MESES[d.getMonth()]} ${d.getFullYear()}`, val));
+      }
+    }
+  });
+
+  // Tema
+  const tema = localStorage.getItem('vx-tema') || 'light';
+  document.documentElement.setAttribute('data-theme', tema);
+  document.getElementById('theme-btn').textContent = tema === 'dark' ? '☀️' : '🌙';
+
+  switchTab('registrar');
+}
+
+/* ===== TEMA ===== */
+function toggleTheme() {
+  const atual = document.documentElement.getAttribute('data-theme');
+  const novo = atual === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', novo);
+  document.getElementById('theme-btn').textContent = novo === 'dark' ? '☀️' : '🌙';
+  localStorage.setItem('vx-tema', novo);
+}
+
+/* ===== TABS ===== */
+function switchTab(tab) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const btn = document.querySelector(`[onclick="switchTab('${tab}')"]`);
+  if (btn) btn.classList.add('active');
+  document.getElementById(`page-${tab}`).classList.add('active');
+}
+
+/* ===== REGISTRO ===== */
+function selectTipo(tipo) {
+  tipoSelecionado = tipo;
+  document.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.tipo-btn.${tipo}`).classList.add('active');
+  const sel = document.getElementById('reg-motivo');
+  sel.innerHTML = '<option value="">Selecione o motivo...</option>';
+  MOTIVOS[tipo].forEach(m => sel.appendChild(new Option(`[${m.id}] ${m.txt}`, m.id)));
+}
+
+async function salvarRegistro() {
+  if (!sb) { showToast('Aguarde...', 'error'); return; }
+  const analista = document.getElementById('reg-analista').value;
+  const loja = document.getElementById('reg-loja').value;
+  const motivo_id = document.getElementById('reg-motivo').value;
+  const obs = document.getElementById('reg-obs').value.trim();
+  if (!analista || !loja || !tipoSelecionado || !motivo_id) { showToast('Preencha todos os campos', 'error'); return; }
+  const motivo = MOTIVOS[tipoSelecionado].find(m => m.id === motivo_id);
+  const btn = document.querySelector('.btn-primary');
+  btn.disabled = true; btn.textContent = 'Salvando...';
+  const { error } = await sb.from('performance_events').insert({
+    analista, loja, tipo: tipoSelecionado, motivo_id,
+    motivo_cat: motivo.cat, motivo_txt: motivo.txt,
+    observacao: obs || null, created_at: new Date().toISOString()
+  });
+  btn.disabled = false; btn.textContent = 'Salvar Registro';
+  if (error) { showToast('Erro: ' + error.message, 'error'); return; }
+  showToast('Registro salvo!', 'success');
+  document.getElementById('reg-obs').value = '';
+  document.getElementById('reg-motivo').innerHTML = '<option value="">Selecione o tipo primeiro...</option>';
+  tipoSelecionado = '';
+  document.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('active'));
+}
+
+/* ===== RELATÓRIO ===== */
+async function onChangeAnalista() {
+  if (!sb) return;
+  const analista = document.getElementById('fil-analista').value;
+  const mes = document.getElementById('fil-mes').value;
+  const selLoja = document.getElementById('fil-loja');
+  selLoja.innerHTML = '<option value="">Todas as lojas</option>';
+  if (!analista) { LOJAS.forEach(l => selLoja.appendChild(new Option(l,l))); return; }
+  const [ano, m] = mes.split('-');
+  const diasMes = new Date(parseInt(ano), parseInt(m), 0).getDate();
+  const { data } = await sb.from('performance_events').select('loja')
+    .eq('analista', analista)
+    .gte('created_at', `${ano}-${m}-01T00:00:00`)
+    .lte('created_at', `${ano}-${m}-${String(diasMes).padStart(2,'0')}T23:59:59`);
+  if (data) [...new Set(data.map(d => d.loja))].sort().forEach(l => selLoja.appendChild(new Option(l,l)));
+}
+
+async function carregarRelatorio() {
+  if (!sb) { showToast('Aguarde...', 'error'); return; }
+  const mes = document.getElementById('fil-mes').value;
+  const analista = document.getElementById('fil-analista').value;
+  const loja = document.getElementById('fil-loja').value;
+  const [ano, m] = mes.split('-');
+  const diasMes = new Date(parseInt(ano), parseInt(m), 0).getDate();
+  document.getElementById('rel-content').innerHTML = '<div class="loading">Carregando...</div>';
+  let q = sb.from('performance_events').select('*')
+    .gte('created_at', `${ano}-${m}-01T00:00:00`)
+    .lte('created_at', `${ano}-${m}-${String(diasMes).padStart(2,'0')}T23:59:59`)
+    .order('created_at', { ascending: false });
+  if (analista) q = q.eq('analista', analista);
+  if (loja) q = q.eq('loja', loja);
+  const { data, error } = await q;
+  if (error) { document.getElementById('rel-content').innerHTML = `<div class="empty-state">Erro: ${error.message}</div>`; return; }
+  if (!data || !data.length) { document.getElementById('rel-content').innerHTML = '<div class="empty-state">Nenhum registro encontrado</div>'; return; }
+  renderRelatorio(data, mes, loja, analista);
+}
+
+function renderRelatorio(data, mes, loja, analista) {
+  const [ano, m] = mes.split('-');
+  const nomeMes = `${MESES[parseInt(m)-1]} ${ano}`;
+  const nomeLojaLabel = loja || 'Todas as lojas';
+  const nomeAnalista = analista || 'Todos os analistas';
+  const acertos = data.filter(d => d.tipo === 'acerto');
+  const erros = data.filter(d => d.tipo === 'erro');
+  const porCat = {};
+  data.forEach(d => {
+    if (!porCat[d.motivo_cat]) porCat[d.motivo_cat] = { acerto:0, erro:0 };
+    porCat[d.motivo_cat][d.tipo]++;
+  });
+  const dadosStr = encodeURIComponent(JSON.stringify({ nomeMes, nomeLojaLabel, nomeAnalista, acertos: acertos.length, erros: erros.length, porCat, errosData: erros, acertosData: acertos }));
+
+  let html = `
+    <div class="placar-row">
+      <div class="placar-card total"><div class="num">${data.length}</div><div class="lbl">Total</div></div>
+      <div class="placar-card acertos"><div class="num">${acertos.length}</div><div class="lbl">Acertos ✅</div></div>
+      <div class="placar-card erros"><div class="num">${erros.length}</div><div class="lbl">Erros ❌</div></div>
+    </div>
+    <div class="eventos-header">
+      <h3>Eventos do período</h3>
+      <div class="copy-btns">
+        <button class="btn-copy" onclick="copiarMensagem('${dadosStr}',false)">📋 Resumo</button>
+        <button class="btn-copy full" onclick="copiarMensagem('${dadosStr}',true)">📋 Completo</button>
+      </div>
+    </div>`;
+
+  data.forEach(d => {
+    const dt = new Date(d.created_at);
+    const dtStr = dt.toLocaleDateString('pt-BR') + ' ' + dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    const delBtn = sessao && sessao.isAdmin ? `<button class="btn-del" onclick="deletarRegistro('${d.id}',this)" title="Remover">✕</button>` : '';
+    html += `
+      <div class="evento-item" id="ev-${d.id}">
+        <span class="evento-badge ${d.tipo}">${d.tipo==='erro'?'Erro':'Acerto'}</span>
+        <div class="evento-info">
+          <div class="evento-motivo">${d.motivo_txt}</div>
+          <div class="evento-meta">${d.loja} · ${d.analista} · ${dtStr}</div>
+          ${d.observacao?`<div class="evento-obs">${d.observacao}</div>`:''}
+        </div>
+        ${delBtn}
+      </div>`;
+  });
+
+  html += `<hr class="divider"><div class="categoria-section"><div class="categoria-title">Por categoria</div>`;
+  Object.entries(porCat).sort((a,b)=>(b[1].erro+b[1].acerto)-(a[1].erro+a[1].acerto)).forEach(([cat,counts]) => {
+    html += `<div class="categoria-row"><span class="cat-name">${cat}</span><div class="cat-counts"><span class="c-acerto">✅ ${counts.acerto}</span><span class="c-erro">❌ ${counts.erro}</span></div></div>`;
+  });
+  html += `</div>`;
+  document.getElementById('rel-content').innerHTML = html;
+}
+
+async function deletarRegistro(id, btn) {
+  if (!sessao || !sessao.isAdmin) return;
+  if (!confirm('Remover este registro?')) return;
+  btn.disabled = true;
+  const { error } = await sb.from('performance_events').delete().eq('id', id);
+  if (error) { showToast('Erro ao remover', 'error'); btn.disabled = false; return; }
+  document.getElementById('ev-' + id).remove();
+  showToast('Registro removido', 'success');
+}
+
+/* ===== COPIAR ===== */
+function copiarMensagem(dadosStr, completo) {
+  const d = JSON.parse(decodeURIComponent(dadosStr));
+  const taxa = d.acertos+d.erros > 0 ? Math.round((d.acertos/(d.acertos+d.erros))*100) : 0;
+  let msg = `📊 *PERFORMANCE — ${d.nomeMes.toUpperCase()}*\n🏬 ${d.nomeLojaLabel}`;
+  if (d.nomeAnalista !== 'Todos os analistas') msg += `\n👤 ${d.nomeAnalista}`;
+  msg += `\n\n✅ Acertos: ${d.acertos}\n❌ Erros: ${d.erros}\n📈 Taxa de acerto: ${taxa}%`;
+  if (completo) {
+    if (d.errosData?.length) {
+      const freq = {}; d.errosData.forEach(e => freq[e.motivo_txt]=(freq[e.motivo_txt]||0)+1);
+      msg += `\n\n❌ *ERROS:*\n` + Object.entries(freq).sort((a,b)=>b[1]-a[1]).map(([t,n])=>`• ${t}${n>1?` (${n}x)`:''}`).join('\n');
+    }
+    if (d.acertosData?.length) {
+      const freq = {}; d.acertosData.forEach(e => freq[e.motivo_txt]=(freq[e.motivo_txt]||0)+1);
+      msg += `\n\n✅ *ACERTOS:*\n` + Object.entries(freq).sort((a,b)=>b[1]-a[1]).map(([t,n])=>`• ${t}${n>1?` (${n}x)`:''}`).join('\n');
+    }
+  } else {
+    if (d.errosData?.length) {
+      const freq = {}; d.errosData.forEach(e => freq[e.motivo_txt]=(freq[e.motivo_txt]||0)+1);
+      const top = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,3);
+      msg += `\n\n⚠️ *Principais pontos de melhora:*\n` + top.map(([t,n])=>`• ${t} (${n}x)`).join('\n');
+    }
+  }
+  navigator.clipboard.writeText(msg).then(() => showToast('Mensagem copiada!', 'success'));
+}
+
+/* ===== DASHBOARD ===== */
+async function carregarDashboard() {
+  if (!sb) return;
+  const mes = document.getElementById('dash-mes').value;
+  const [ano, m] = mes.split('-');
+  const diasMes = new Date(parseInt(ano), parseInt(m), 0).getDate();
+  document.getElementById('dash-content').innerHTML = '<div class="loading">Carregando...</div>';
+  const { data, error } = await sb.from('performance_events').select('*')
+    .gte('created_at', `${ano}-${m}-01T00:00:00`)
+    .lte('created_at', `${ano}-${m}-${String(diasMes).padStart(2,'0')}T23:59:59`);
+  if (error || !data) { document.getElementById('dash-content').innerHTML = `<div class="empty-state">Erro ao carregar</div>`; return; }
+  if (!data.length) { document.getElementById('dash-content').innerHTML = `<div class="empty-state">Nenhum dado neste período</div>`; return; }
+  renderDashboard(data);
+}
+
+function renderDashboard(data) {
+  // Por loja
+  const porLoja = {};
+  data.forEach(d => {
+    if (!porLoja[d.loja]) porLoja[d.loja] = { acerto:0, erro:0 };
+    porLoja[d.loja][d.tipo]++;
+  });
+  const topErrosLoja = Object.entries(porLoja).sort((a,b)=>b[1].erro-a[1].erro).slice(0,10);
+  const topAcertosLoja = Object.entries(porLoja).sort((a,b)=>b[1].acerto-a[1].acerto).slice(0,10);
+
+  // Por motivo
+  const porMotivoErro = {}; const porMotivoAcerto = {};
+  data.forEach(d => {
+    if (d.tipo === 'erro') porMotivoErro[d.motivo_txt] = (porMotivoErro[d.motivo_txt]||0)+1;
+    else porMotivoAcerto[d.motivo_txt] = (porMotivoAcerto[d.motivo_txt]||0)+1;
+  });
+  const topErrosMotivo = Object.entries(porMotivoErro).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const topAcertosMotivo = Object.entries(porMotivoAcerto).sort((a,b)=>b[1]-a[1]).slice(0,10);
+
+  const maxErroLoja = topErrosLoja[0]?.[1]?.erro || 1;
+  const maxAcertoLoja = topAcertosLoja[0]?.[1]?.acerto || 1;
+  const maxErroMotivo = topErrosMotivo[0]?.[1] || 1;
+  const maxAcertoMotivo = topAcertosMotivo[0]?.[1] || 1;
+
+  function rankHTML(items, tipo, max, keyFn, valFn) {
+    if (!items.length) return '<div class="empty-state" style="padding:20px">Sem dados</div>';
+    return items.map(([key, val], i) => {
+      const v = valFn(val); const pct = Math.round((v/max)*100);
+      return `<div class="rank-item">
+        <span class="rank-num">${i+1}</span>
+        <span class="rank-name">${key}</span>
+        <div class="rank-bar-wrap"><div class="rank-bar ${tipo}" style="width:${pct}%"></div></div>
+        <span class="rank-count ${tipo}">${v}</span>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('dash-content').innerHTML = `
+    <div class="dash-grid">
+      <div class="dash-card">
+        <div class="dash-card-title">🏬 Lojas <span class="dash-badge erro">Mais erros</span></div>
+        ${rankHTML(topErrosLoja,'erro',maxErroLoja,k=>k,v=>v.erro)}
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title">🏬 Lojas <span class="dash-badge acerto">Mais acertos</span></div>
+        ${rankHTML(topAcertosLoja,'acerto',maxAcertoLoja,k=>k,v=>v.acerto)}
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title">📋 Motivos <span class="dash-badge erro">Mais erros</span></div>
+        ${rankHTML(topErrosMotivo,'erro',maxErroMotivo,k=>k,v=>v)}
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title">📋 Motivos <span class="dash-badge acerto">Mais acertos</span></div>
+        ${rankHTML(topAcertosMotivo,'acerto',maxAcertoMotivo,k=>k,v=>v)}
+      </div>
+    </div>`;
+}
+
+/* ===== UTILS ===== */
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
